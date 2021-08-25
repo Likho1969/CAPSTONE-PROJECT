@@ -1,3 +1,6 @@
+# Likho Kapesi
+# Classroom 2
+
 import hmac
 import sqlite3
 from flask import Flask, request, redirect
@@ -11,7 +14,7 @@ from datetime import timedelta
 
 
 # creating a user object
-class User(object):
+class Student(object):
     def __init__(self, email, username, password):
         self.id = email
         self.username = username
@@ -88,7 +91,7 @@ class Database(object):
     def edituser(self, email, value):
         email = email
         values = value
-        query = "UPDATE user SET first_name=?, last_name=?, address=?, username=?, password=? WHERE email='" + email + "'"
+        query = "UPDATE students SET fullName=?, email=?, contact=?, password=? WHERE email='" + email + "'"
         self.cursor.execute(query, values)
 
     def selectproduct(self, value):
@@ -111,7 +114,7 @@ class Database(object):
         return data
 
     def deleteuser(self, email):
-        self.cursor.execute("DELETE FROM user WHERE email='" + email + "'")
+        self.cursor.execute("DELETE FROM students WHERE email='" + email + "'")
         self.conn.commit()
 
     def commit(self):
@@ -121,7 +124,7 @@ class Database(object):
 # function to take image uploads and convert them into urls
 def upload_file():
     app.logger.info('in upload route')
-    cloudinary.config(cloud_name ='dlqxdivje', api_key='599819111725767',
+    cloudinary.config(cloud_name='dlqxdivje', api_key='599819111725767',
                       api_secret='lTD-aqaoTbzVgmZqyZxjPThyaVg')
     upload_result = None
     if request.method == 'POST' or request.method == 'PUT':
@@ -137,23 +140,23 @@ db = Database()
 
 
 # collecting all users from the database
-def fetch_users():
-    with sqlite3.connect('posbe.db') as conn:
+def fetch_students():
+    with sqlite3.connect('financial.db') as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM user")
-        users = cursor.fetchall()
-        print(users)
+        cursor.execute("SELECT * FROM students")
+        students = cursor.fetchall()
+        print(students)
 
         new_data = []
 
-        for data in users:
-            new_data.append(User(data[0], data[4], data[5]))
+        for data in students:
+            new_data.append(Student(data[0], data[4], data[5]))
     return new_data
 
 
 # collecting all products from the database
 def fetch_products():
-    with sqlite3.connect('posbe.db') as conn:
+    with sqlite3.connect('financial.db') as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM products")
         allproducts = cursor.fetchall()
@@ -166,20 +169,19 @@ def fetch_products():
     return new_data
 
 
-users = fetch_users()
+users = fetch_students()
 products = fetch_products()
 
 
 # function to create the user table in the database
 def createusertable():
-    conn = sqlite3.connect('posbe.db')
+    conn = sqlite3.connect('financial.db')
     print("Opened database successfully")
 
-    conn.execute("CREATE TABLE IF NOT EXISTS user(email TEXT PRIMARY KEY,"
-                 "first_name TEXT NOT NULL,"
-                 "last_name TEXT NOT NULL,"
-                 "address TEXT NOT NULL,"
-                 "username TEXT NOT NULL,"
+    conn.execute("CREATE TABLE IF NOT EXISTS students(id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                 "fullName TEXT NOT NULL,"
+                 "email TEXT NOT NULL,"
+                 "contact TEXT NOT NULL,"
                  "password TEXT NOT NULL)")
     print("user table created successfully")
     conn.close()
@@ -187,8 +189,8 @@ def createusertable():
 
 # function to create the products table in the database
 def createproducttable():
-    with sqlite3.connect('posbe.db') as conn:
-        conn.execute("CREATE TABLE IF NOT EXISTS catalogue (product_id TEXT PRIMARY KEY,"
+    with sqlite3.connect('financial.db') as conn:
+        conn.execute("CREATE TABLE IF NOT EXISTS package (product_id TEXT PRIMARY KEY,"
                      "product_name TEXT NOT NULL,"
                      "product_type TEXT NOT NULL,"
                      "product_quantity INTEGER NOT NULL,"
@@ -228,8 +230,8 @@ app.debug = True
 app.config['SECRET_KEY'] = 'super-secret'
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = 'lottoemail123@gmail.com'
-app.config['MAIL_PASSWORD'] = 'MonkeyVillage123'
+app.config['MAIL_USERNAME'] = 'likhokapesi04@gmail.com'
+app.config['MAIL_PASSWORD'] = 'Avuyonke19'
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 app.config['TESTING'] = True
@@ -253,28 +255,23 @@ def user_registration():
 
     if request.method == "POST":
 
+        fullName = request.form['fullName']
         email = request.form['email']
-        first_name = request.form['first_name']
-        last_name = request.form['last_name']
-        address = request.form['address']
-        username = request.form['username']
+        contact = request.form['contact']
         password = request.form['password']
         if (re.search(regex, email)):
-            with sqlite3.connect("posbe.db") as conn:
+            with sqlite3.connect("financial.db") as conn:
                 cursor = conn.cursor()
-                cursor.execute("INSERT INTO user("
+                cursor.execute("INSERT INTO student("
+                               "fullName,"
                                "email,"
-                               "first_name,"
-                               "last_name,"
-                               "address,"
-                               "username,"
-                               "password) VALUES(?, ?, ?, ?, ?, ?)", (email, first_name, last_name, address, username, password))
+                               "contact,"
+                               "password) VALUES(?, ?, ?, ?, ?, ?)", (fullName, email, contact, password))
                 conn.commit()
                 global users
-                users = fetch_users()
+                users = fetch_students()
 
-
-                response["message"] = "success. message sent"
+                response["message"] = "Success. Message has been sent"
                 response["status_code"] = 201
 
             return redirect("/emailsent/%s" % email)
@@ -287,11 +284,11 @@ def user_registration():
 def sendemail(email):
     mail = Mail(app)
 
-    msg = Message('Hello Message', sender='lottoemail123@gmail.com', recipients=[email])
-    msg.body = "This is the email body after making some changes"
+    msg = Message('Hello Student', sender='likhokapesi04@gmail.com', recipients=[email])
+    msg.body = "You have successfully registered registered at Dynamic Oak Trading Institute (PTY) LTD."
     mail.send(msg)
 
-    return "Thank you for registering. An em"
+    return "Thank you for registering at and considering Dynamic Oak Trading Institute (PTY) LTD."
 
 
 # app route to view a profile
@@ -441,6 +438,7 @@ def deleteuser(email):
     response['message'] = 200
     response['text'] = "User successfully deleted"
     return response
+
 
 if __name__ == '__main__':
     app.run(debug=True)
