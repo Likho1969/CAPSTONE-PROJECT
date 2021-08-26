@@ -290,6 +290,66 @@ def send_email(email):
     return "Thank you for considering and registering at Dynamic Oak Trading Institute (PTY) LTD."
 
 
+@app.route("/get-students/<email>/")
+@jwt_required()
+def get_students(email):
+    dtb = Database()
+    response = {}
+    items = dtb.select_students(email)
+    response['status_code'] = 200
+    response['data'] = items
+    return response
+
+
+#  view student profile
+@app.route('/student-profile/<username>/', methods=["GET"])
+def view_student_profile(username):
+    response = {}
+    if request.method == "GET":
+        with sqlite3.connect("financial_markets.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM students WHERE username='" + username + "'")
+            data = cursor.fetchall()
+            if data == []:
+                return "Student does not exit"
+            else:
+                response['message'] = 200
+                response['data'] = data
+        return response
+
+
+@app.route("/edit-student/<studentemail>/", methods=["PUT"])
+@jwt_required()
+def edit_student(studentemail):
+    response = {}
+    dtb = Database()
+    if request.method == "PUT":
+        full_name = request.json['fullName']
+        email = request.json['email']
+        contact = request.json['contact']
+        username = request.json['username']
+        password = request.json['password']
+        values = (full_name, email, contact, username, password)
+        dtb.edit_student(studentemail, values)
+        dtb.commit()
+        response['message'] = 200
+        return response
+    else:
+        return "Method not allowed"
+
+
+@app.route('/delete-student/<email>')
+@jwt_required()
+def delete_student(email):
+    response = {}
+    dtb = Database()
+    dtb.delete_student(email)
+    dtb.commit()
+    response['message'] = 200
+    response['text'] = "Student Deleted Successfully"
+    return response
+
+
 #  add service to the database
 @app.route('/add-service/', methods=["POST"])
 @jwt_required()
@@ -377,65 +437,5 @@ def edit_service(serviceid):
             return "Method not allowed"
 
 
-@app.route("/get-students/<email>/")
-@jwt_required()
-def get_students(email):
-    dtb = Database()
-    response = {}
-    items = dtb.select_students(email)
-    response['status_code'] = 200
-    response['data'] = items
-    return response
-
-
-#  view student profile
-@app.route('/student-profile/<username>/', methods=["GET"])
-def view_student_profile(username):
-    response = {}
-    if request.method == "GET":
-        with sqlite3.connect("financial_markets.db") as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM students WHERE username='" + username + "'")
-            data = cursor.fetchall()
-            if data == []:
-                return "Student does not exit"
-            else:
-                response['message'] = 200
-                response['data'] = data
-        return response
-
-
-@app.route("/edit-student/<studentemail>/", methods=["PUT"])
-@jwt_required()
-def edit_student(studentemail):
-    response = {}
-    dtb = Database()
-    if request.method == "PUT":
-        full_name = request.json['fullName']
-        email = request.json['email']
-        contact = request.json['contact']
-        username = request.json['username']
-        password = request.json['password']
-        values = (full_name, email, contact, username, password)
-        dtb.edit_student(studentemail, values)
-        dtb.commit()
-        response['message'] = 200
-        return response
-    else:
-        return "Method not allowed"
-
-
-@app.route('/delete-student/<email>')
-@jwt_required()
-def delete_student(email):
-    response = {}
-    dtb = Database()
-    dtb.delete_student(email)
-    dtb.commit()
-    response['message'] = 200
-    response['text'] = "Student successfully deleted"
-    return response
-
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5050, debug=False)
