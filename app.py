@@ -35,58 +35,53 @@ class Product(object):
 # initializing the database
 class Database(object):
     def __init__(self):
-        self.conn = sqlite3.connect('posbe.db')
+        self.conn = sqlite3.connect('financial_markets.db')
         self.cursor = self.conn.cursor()
 
     def addpro(self, value):
-        query = "INSERT INTO catalogue (product_id, product_name, product_type, product_quantity, product_price," \
-                "product_image, email) VALUES (?, ?, ?, ?, ?, ?, ?)"
+        query = "INSERT INTO services (service_id, service_name, service_type, service_price," \
+                "service_image, email) VALUES (?, ?, ?, ?, ?, ?)"
         self.cursor.execute(query, value)
 
     def delpro(self, productid):
         proid = productid
-        query = "DELETE FROM catalogue WHERE product_id='" + proid + "'"
+        query = "DELETE FROM catalogue WHERE service_id='" + proid + "'"
         self.cursor.execute(query)
 
     def editpro(self, pro_id, value):
         proid = pro_id
         values = value
         put_data = {}
-        put_data['product_id'] = values.get('product_id')
-        put_data['product_name'] = values.get('product_name')
-        put_data['product_type'] = values.get('product_type')
-        put_data['product_quantity'] = values.get('product_quantity')
-        put_data['product_price'] = values.get('product_price')
-        put_data['product_image'] = values.get('product_image')
+        put_data['service_id'] = values.get('service_id')
+        put_data['service_name'] = values.get('service_name')
+        put_data['service_type'] = values.get('service_type')
+        put_data['service_price'] = values.get('service_price')
+        put_data['service_image'] = values.get('service_image')
 
-        if values.get('product_image'):
-            self.cursor.execute("UPDATE catalogue SET "
-                                "product_id=?, "
-                                "product_name=?, "
-                                "product_type=?, "
-                                "product_quantity=?, "
-                                "product_price=?, "
-                                "product_image=? "
-                                "WHERE product_id='" + proid + "'"
-                                ,   (put_data['product_id'],
-                                     put_data['product_name'],
-                                     put_data['product_type'],
-                                     put_data['product_quantity'],
-                                     put_data['product_price'],
-                                     put_data['product_image']))
+        if values.get('service_image'):
+            self.cursor.execute("UPDATE services SET "
+                                "service_id=?, "
+                                "service_name=?, "
+                                "service_type=?, "
+                                "service_price=?, "
+                                "service_image=? "
+                                "WHERE service_id='" + proid + "'"
+                                ,   (put_data['service_id'],
+                                     put_data['service_name'],
+                                     put_data['service_type'],
+                                     put_data['service_price'],
+                                     put_data['service_image']))
         else:
-            self.cursor.execute("UPDATE catalogue SET "
-                                "product_id=?, "
-                                "product_name=?, "
-                                "product_type=?, "
-                                "product_quantity=?, "
-                                "product_price=? "
-                                "WHERE product_id='" + proid + "'"
-                                , (put_data['product_id'],
-                                   put_data['product_name'],
-                                   put_data['product_type'],
-                                   put_data['product_quantity'],
-                                   put_data['product_price']))
+            self.cursor.execute("UPDATE services SET "
+                                "service_id=?, "
+                                "service_name=?, "
+                                "service_type=?, "
+                                "service_price=? "
+                                "WHERE service_id='" + proid + "'"
+                                , (put_data['service_id'],
+                                   put_data['service_name'],
+                                   put_data['service_type'],
+                                   put_data['service_price']))
 
     def edituser(self, email, value):
         email = email
@@ -96,20 +91,20 @@ class Database(object):
 
     def selectproduct(self, value):
         proid = value
-        query = "SELECT * FROM catalogue WHERE product_id='" + proid + "'"
+        query = "SELECT * FROM students WHERE service_id='" + proid + "'"
         self.cursor.execute(query)
         data = self.cursor.fetchall()
         return data
 
     def myproducts(self, value):
         email = value
-        query = "SELECT * FROM catalogue WHERE email='" + email + "'"
+        query = "SELECT * FROM students WHERE email='" + email + "'"
         self.cursor.execute(query)
         data = self.cursor.fetchall()
         return data
 
     def viewcat(self):
-        self.cursor.execute("SELECT * FROM catalogue")
+        self.cursor.execute("SELECT * FROM students")
         data = self.cursor.fetchall()
         return data
 
@@ -128,7 +123,7 @@ def upload_file():
                       api_secret='lTD-aqaoTbzVgmZqyZxjPThyaVg')
     upload_result = None
     if request.method == 'POST' or request.method == 'PUT':
-        product_image = request.json['product_image']
+        product_image = request.json['service_image']
         app.logger.info('%s file_to_upload', product_image)
         if product_image:
             upload_result = cloudinary.uploader.upload(product_image)
@@ -141,7 +136,7 @@ db = Database()
 
 # collecting all users from the database
 def fetch_students():
-    with sqlite3.connect('financial.db') as conn:
+    with sqlite3.connect('financial_markets.db') as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM students")
         students = cursor.fetchall()
@@ -155,30 +150,30 @@ def fetch_students():
 
 
 # collecting all products from the database
-def fetch_products():
-    with sqlite3.connect('financial.db') as conn:
+def fetch_services():
+    with sqlite3.connect('financial_markets.db') as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM products")
-        allproducts = cursor.fetchall()
-        print(allproducts)
+        cursor.execute("SELECT * FROM services")
+        services = cursor.fetchall()
+        print(services)
 
         new_data = []
 
-        for data in allproducts:
+        for data in services:
             new_data.append(Product(data[0], data[1], data[2], data[3], data[4], data[5]))
     return new_data
 
 
-users = fetch_students()
-products = fetch_products()
+students = fetch_students()
+products = fetch_services()
 
 
 # function to create the user table in the database
-def createusertable():
-    conn = sqlite3.connect('financial.db')
+def createstudenttable():
+    conn = sqlite3.connect('financial_markets.db')
     print("Opened database successfully")
 
-    conn.execute("CREATE TABLE IF NOT EXISTS students(id INTEGER PRIMARY KEY AUTOINCREMENT,"
+    conn.execute("CREATE TABLE IF NOT EXISTS students(student_id INTEGER PRIMARY KEY AUTOINCREMENT,"
                  "fullName TEXT NOT NULL,"
                  "email TEXT NOT NULL,"
                  "contact TEXT NOT NULL,"
@@ -187,27 +182,26 @@ def createusertable():
     conn.close()
 
 
-# function to create the products table in the database
-def createproducttable():
-    with sqlite3.connect('financial.db') as conn:
-        conn.execute("CREATE TABLE IF NOT EXISTS package (product_id TEXT PRIMARY KEY,"
-                     "product_name TEXT NOT NULL,"
-                     "product_type TEXT NOT NULL,"
-                     "product_quantity INTEGER NOT NULL,"
-                     "product_price TEXT NOT NULL,"
-                     "product_image TEXT NOT NULL,"
+#  create the products table in the database
+def createservicetable():
+    with sqlite3.connect('financial_markets.db') as conn:
+        conn.execute("CREATE TABLE IF NOT EXISTS services (service_id TEXT NOT NULL,"
+                     "service_name TEXT NOT NULL,"
+                     "service_type TEXT NOT NULL,"
+                     "service_price TEXT NOT NULL,"
+                     "service_image TEXT NOT NULL,"
                      "email TEXT NOT NULL,"
-                     "FOREIGN KEY (email) REFERENCES user (email))")
+                     "FOREIGN KEY (email) REFERENCES students (email))")
     print("product table created successfully.")
 
 
-# calling the functions to create the tables
-createusertable()
-createproducttable()
+# call functions to create the tables
+createstudenttable()
+createservicetable()
 
 
-username_table = {u.username: u for u in users}
-useremail_table = {u.id: u for u in users}
+username_table = {u.username: u for u in students}
+useremail_table = {u.id: u for u in students}
 
 
 # function to create the token during login
@@ -247,8 +241,8 @@ def protected():
     return '%s' % current_identity
 
 
-# app route for user registration
-@app.route('/user-registration/', methods=["POST"])
+# student registration
+@app.route('/student-registration/', methods=["POST"])
 def user_registration():
     response = {}
     regex = '^(\w|\.|\_|\-)+[@](\w|\_|\-|\.)+[.]\w{2,3}$'
@@ -260,9 +254,9 @@ def user_registration():
         contact = request.form['contact']
         password = request.form['password']
         if (re.search(regex, email)):
-            with sqlite3.connect("financial.db") as conn:
+            with sqlite3.connect("financial_markets.db") as conn:
                 cursor = conn.cursor()
-                cursor.execute("INSERT INTO student("
+                cursor.execute("INSERT INTO students("
                                "fullName,"
                                "email,"
                                "contact,"
@@ -274,13 +268,13 @@ def user_registration():
                 response["message"] = "Success. Message has been sent"
                 response["status_code"] = 201
 
-            return redirect("/emailsent/%s" % email)
+            return redirect("/email-sent/%s" % email)
         else:
             return "Email not valid. Please enter a valid email address"
 
 
-# app route that sends an email to users who registered
-@app.route('/emailsent/<email>', methods=['GET'])
+#  send an email to student who registered
+@app.route('/email-sent/<email>', methods=['GET'])
 def sendemail(email):
     mail = Mail(app)
 
@@ -292,16 +286,16 @@ def sendemail(email):
 
 
 # app route to view a profile
-@app.route('/viewprofile/<username>/', methods=["GET"])
+@app.route('/show-student/<username>/', methods=["GET"])
 def viewownprofile(username):
     response = {}
     if request.method == "GET":
-        with sqlite3.connect("posbe.db") as conn:
+        with sqlite3.connect("financial_markets.db") as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM user WHERE username='" + username + "'")
+            cursor.execute("SELECT * FROM students WHERE username='" + username + "'")
             data = cursor.fetchall()
             if data == []:
-                return "User does not exit"
+                return "Student does not exit"
             else:
                 response['message'] = 200
                 response['data'] = data
@@ -309,39 +303,37 @@ def viewownprofile(username):
 
 
 # app route to add a product to the database
-@app.route('/addtocatalogue/', methods=["POST"])
+@app.route('/add-service/', methods=["POST"])
 @jwt_required()
 def newproduct():
     dtb = Database()
     response = {}
 
     if request.method == "POST":
-        product_id = request.json['product_id']
-        product_name = request.json['product_name']
-        product_type = request.json['product_type']
-        product_quantity = request.json['product_quantity']
-        product_price = request.json['product_price']
+        service_id = request.json['service_id']
+        service_name = request.json['service_name']
+        service_type = request.json['service_type']
+        service_price = request.json['service_price']
         email = request.json['email']
-        if (product_id == '' or product_name == '' or product_type == ''
-                or product_quantity == '' or product_price == '' or email == ''):
-            return "Please fill in all entry fields"
+        if (service_id == '' or service_name == '' or service_type == '' or service_price == '' or email == ''):
+            return "You are advised to fill in all the required entry fields"
         else:
-            if int(product_quantity):
-                values = (product_id, product_name, product_type, product_quantity, product_price, upload_file(), email)
+            if int(service_id):
+                values = (service_id, service_name, service_type, service_price, upload_file(), email)
                 dtb.addpro(values)
                 dtb.commit()
 
                 response["status_code"] = 201
-                response['description'] = 'product added'
+                response['description'] = 'Service Added Successfully'
                 return response
             else:
-                return "Please enter product quantity as an number"
+                return "You are advised to enter service id as an number"
     else:
         return "Method Not Allowed"
 
 
 # app route to view all the products in the database
-@app.route('/viewcatalogue/', methods=["GET"])
+@app.route('/show-service/', methods=["GET"])
 def get_products():
     dtb = Database()
     response = {}
@@ -352,32 +344,32 @@ def get_products():
 
 
 # app route to delete a product from the database
-@app.route("/delete-product/<productid>")
+@app.route("/delete-service/<serviceid>")
 @jwt_required()
-def delete_product(productid):
+def delete_product(serviceid):
     response = {}
     dtb = Database()
 
-    dtb.delpro(productid)
+    dtb.delpro(serviceid)
     dtb.commit()
     response['status_code'] = 200
-    response['message'] = "product deleted successfully."
+    response['message'] = "Service deleted successfully."
     return response
 
 
 # app route to edit a product in the database
-@app.route("/edit-product/<productid>/", methods=["PUT"])
+@app.route("/edit-service/<serviceid>/", methods=["PUT"])
 @jwt_required()
-def edit_product(productid):
+def edit_product(serviceid):
     response = {}
     dtb = Database()
-    product = dtb.selectproduct(productid)
+    product = dtb.selectproduct(serviceid)
     if product == []:
-        return "Product does not exist in the database"
+        return "Service does not exist in the database"
     else:
         if request.method == "PUT":
             incoming_data = dict(request.json)
-            dtb.editpro(productid, incoming_data)
+            dtb.editpro(serviceid, incoming_data)
             dtb.commit()
             response['message'] = 200
             return response
@@ -385,7 +377,7 @@ def edit_product(productid):
             return "Method not allowed"
 
 
-@app.route("/myproducts/<email>/")
+@app.route("/our-service/<email>/")
 @jwt_required()
 def getmyproducts(email):
     dtb = Database()
@@ -396,18 +388,17 @@ def getmyproducts(email):
     return response
 
 
-@app.route("/edit-user/<useremail>/", methods=["PUT"])
+@app.route("/edit-student/<studentemail>/", methods=["PUT"])
 @jwt_required()
 def edit_user(useremail):
     response = {}
     dtb = Database()
     if request.method == "PUT":
-        first_name = request.json['first_name']
-        last_name = request.json['last_name']
-        address = request.json['address']
-        username = request.json['username']
+        fullName= request.json['fullName']
+        email = request.json['email']
+        contact = request.json['contact']
         password = request.json['password']
-        values = (first_name, last_name, address, username, password)
+        values = (fullName, email, contact, password)
         dtb.edituser(useremail, values)
         dtb.commit()
         response['message'] = 200
@@ -416,7 +407,7 @@ def edit_user(useremail):
         return "Method not allowed"
 
 
-@app.route('/select_item/<productid>')
+@app.route('/select-service/<serviceid>')
 @jwt_required()
 def selectitem(productid):
     response = {}
@@ -427,7 +418,7 @@ def selectitem(productid):
     return response
 
 
-@app.route('/deleteuser/<email>')
+@app.route('/delete-student/<email>')
 @jwt_required()
 def deleteuser(email):
     response = {}
@@ -436,7 +427,7 @@ def deleteuser(email):
     dtb.commit()
     dtb.deleteuser(email)
     response['message'] = 200
-    response['text'] = "User successfully deleted"
+    response['text'] = "Student successfully deleted"
     return response
 
 
