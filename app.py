@@ -11,6 +11,7 @@ import re
 import cloudinary
 import cloudinary.uploader
 from datetime import timedelta
+import nexmo
 
 
 # creating a user object
@@ -122,10 +123,10 @@ def upload_file():
                       api_secret='lTD-aqaoTbzVgmZqyZxjPThyaVg')
     upload_result = None
     if request.method == 'POST' or request.method == 'PUT':
-        product_image = request.json['product_image']
-        app.logger.info('%s file_to_upload', product_image)
-        if product_image:
-            upload_result = cloudinary.uploader.upload(product_image)
+        service_image = request.json['service_image']
+        app.logger.info('%s file_to_upload', service_image)
+        if service_image:
+            upload_result = cloudinary.uploader.upload(service_image)
             app.logger.info(upload_result)
             return upload_result['url']
 
@@ -207,11 +208,11 @@ username_table = {u.username: u for u in students}
 studentemail_table = {u.id: u for u in students}
 
 
-# function to create the token during login
+# create the token during login
 def authenticate(username, password):
-    user = username_table.get(username, None)
-    if user and hmac.compare_digest(user.password.encode('utf-8'), password.encode('utf-8')):
-        return user
+    student = username_table.get(username, None)
+    if student and hmac.compare_digest(student.password.encode('utf-8'), password.encode('utf-8')):
+        return student
 
 
 def identity(payload):
@@ -252,11 +253,11 @@ def student_registration():
 
     if request.method == "POST":
 
-        full_name = request.form['fullName']
-        email = request.form['email']
-        contact = request.form['contact']
-        username = request.form['username']
-        password = request.form['password']
+        full_name = request.json['fullName']
+        email = request.json['email']
+        contact = request.json['contact']
+        username = request.json['username']
+        password = request.json['password']
         if re.search(regex, email):
             with sqlite3.connect("financial_markets.db") as conn:
                 cursor = conn.cursor()
@@ -290,7 +291,23 @@ def send_email(email):
     return "Thank you for considering and registering at Dynamic Oak Trading Institute (PTY) LTD."
 
 
-@app.route("/get-students/<email>/")
+#  send text message to users who registered
+@app.route('/message-sent/<contact>', methods=['GET'])
+def send_message(contact):
+    client = nexmo.Client(key="dd83046b", secret="aGEM5wRFava9ifhl")
+
+    message = "Hello Dear Student\n You have successfully registered at Dynamic Oak Trading Institute (PTY) LTD.\n "
+
+    response = client.send_message({"from": "my_nexmo_num", "to": contact, "text": message})
+
+    response_text = response['messages'][201]
+
+    if response['status'] == '201':
+        return "Sent message" + response['message-id']
+    else:
+        return 'Error' + response['error-text']
+
+
 @jwt_required()
 def get_students(email):
     dtb = Database()
@@ -425,7 +442,7 @@ def edit_service(serviceid):
     dtb = Database()
     service = dtb.select_service(serviceid)
     if service == []:
-        return "Service does not exist in the database"
+        return "Service not found in the database"
     else:
         if request.method == "PUT":
             incoming_data = dict(request.json)
