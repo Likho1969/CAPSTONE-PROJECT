@@ -67,13 +67,19 @@ class Reply(object):
 
 # Creating a share class
 # class Share(object):
-  #  def __init__(self, share_id, post_id):
-      #  pass
+  #  def __init__(self, share_id, post_id, user_id, share):
+      #  self.share_id = share_id
+      # self.post_id = post_id
+      # self.user_id = user_id
+      # self.share = share
 
 # Creating a follow class
 # class Follow(object):
-   # def __init__(self, follow_id, post_id):
-      #  pass
+   # def __init__(self, follow_id, post_id, user_id, follow):
+     # self.follow_id = follow_id
+     # self.post_id = post_id
+     # self.user_id = user_id
+     # self.follow = follow
       
       
 
@@ -220,7 +226,7 @@ class Database(object):
                 cursor.execute("UPDATE posts SET title =? WHERE post_id=?", (put_data['title'], post_id))
                 conn.commit()
                 response['status_code'] = 200
-                response['message'] = "Post title was successfully updated."
+                response['message'] = "Title was successfully updated."
 
         # Edit image of post
         if incoming_data.get('post_image') is not None:
@@ -230,7 +236,7 @@ class Database(object):
                 cursor.execute("UPDATE posts SET post_image =? WHERE post_id=?", (put_data['post_image'], post_id))
                 conn.commit()
                 response['status_code'] = 200
-                response['message'] = "Post image was successfully updated."
+                response['message'] = "Image was successfully updated."
 
         # Edit intro of post
         if incoming_data.get('intro') is not None:
@@ -240,7 +246,7 @@ class Database(object):
                 cursor.execute("UPDATE posts SET intro =? WHERE post_id=?", (put_data['intro'], post_id))
                 conn.commit()
                 response['status_code'] = 200
-                response['message'] = "Post intro was successfully updated."
+                response['message'] = "Introduction was successfully updated."
 
         # Edit body of post
         if incoming_data.get('body') is not None:
@@ -250,7 +256,7 @@ class Database(object):
                 cursor.execute("UPDATE posts SET body =? WHERE post_id=?", (put_data['body'], post_id))
                 conn.commit()
                 response['status_code'] = 200
-                response['message'] = "Post body was successfully updated."
+                response['message'] = "Body was successfully updated."
 
         # Edit conclusion of post
         if incoming_data.get('conclusion') is not None:
@@ -260,7 +266,7 @@ class Database(object):
                 cursor.execute("UPDATE posts SET conclusion =? WHERE post_id=?", (put_data['conclusion'], post_id))
                 conn.commit()
                 response['status_code'] = 200
-                response['message'] = "Post conclusion was successfully updated."
+                response['message'] = "Conclusion was successfully updated."
 
         # Edit author of post
         if incoming_data.get('author') is not None:
@@ -270,7 +276,7 @@ class Database(object):
                 cursor.execute("UPDATE posts SET author =? WHERE post_id=?", (put_data['author'], post_id))
                 conn.commit()
                 response['status_code'] = 200
-                response['message'] = "Post author was successfully updated."
+                response['message'] = "Author was successfully updated."
 
         # Edit date created of post
         if incoming_data.get('date_created') is not None:
@@ -280,7 +286,7 @@ class Database(object):
                 cursor.execute("UPDATE posts SET date_created =? WHERE post_id=?", (put_data['date_created'], post_id))
                 conn.commit()
                 response['status_code'] = 200
-                response['message'] = "Post creation date was successfully updated."
+                response['message'] = "Creation date was successfully updated."
 
         # Edit user id of post
         if incoming_data.get('id') is not None:
@@ -290,7 +296,7 @@ class Database(object):
                 cursor.execute("UPDATE posts SET id =? WHERE post_id=?", (put_data['id'], post_id))
                 conn.commit()
                 response['status_code'] = 200
-                response['message'] = "User id of post was successfully updated."
+                response['message'] = "User id was successfully updated."
 
         return response
 
@@ -369,7 +375,7 @@ class Database(object):
     
     # Follow user function   
     # def follow_user(self, userid1, userid2):
-      #  self.cursor.execute("SELECT * FROM user WHERE userId='" + str(userid2) + "'")
+      #  self.cursor.execute("SELECT * FROM users WHERE userId='" + str(userid2) + "'")
        # data = self.cursor.fetchone()
        # followingstring = data['following']
        # followerstring = data['followers']
@@ -383,14 +389,14 @@ class Database(object):
 
            # newfollowarray.append(userid1)
            # newfollowingstring = str(newfollowarray)
-           # self.cursor.execute("UPDATE user SET following=? WHERE userId=?", (newfollowingstring, userid2))
+           # self.cursor.execute("UPDATE users SET following=? WHERE userId=?", (newfollowingstring, userid2))
            # self.conn.commit()
 
        # else:
-           # self.cursor.execute("UPDATE user SET following=? WHERE userId=?", (userid1, userid2))
+           # self.cursor.execute("UPDATE users SET following=? WHERE userId=?", (userid1, userid2))
            # self.conn.commit()
 
-       # self.cursor.execute("SELECT * FROM user WHERE userId='" + str(userid1) + "'")
+       # self.cursor.execute("SELECT * FROM users WHERE userId='" + str(userid1) + "'")
        # data = self.cursor.fetchone()
 
        # if data['followers'] is not None:
@@ -402,12 +408,15 @@ class Database(object):
 
            # newfollowerarray.append(userid2)
            # newfollowerstring = str(newfollowerarray)
-           # self.cursor.execute("UPDATE user SET followers=? WHERE userId=?", (newfollowerstring, userid1))
+           # self.cursor.execute("UPDATE users SET followers=? WHERE user_id=?", (newfollowerstring, userid1))
            # self.conn.commit()
         # else:
-           # self.cursor.execute("UPDATE user SET followers=? WHERE userId=?", (userid2, userid1))
+           # self.cursor.execute("UPDATE users SET followers=? WHERE user_id=?", (userid2, userid1))
            # self.conn.commit()
-       
+
+    # def time_now():
+      #  return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
     # Retweet function       
     # def share_post(self, userid, post_id):
       #  self.cursor.execute("SELECT * FROM posts WHERE post_id='" + str(post_id) + "'")
@@ -441,17 +450,17 @@ class Database(object):
 ####################################################  CREATING TABLES START ###################################################
 
 # Creating a user table
-def init_user_table():
+def init_user_table()
     conn = sqlite3.connect('blog.db')
     print("Opened database successfully.")
     conn.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT,"
                  "user_image TEXT,"
                  "name TEXT NOT NULL,"
                  "surname TEXT NOT NULL,"
-                 "email TEXT NOT NULL,"
+                 "email TEXT NOT NULL UNIQUE,"
                  "username TEXT NOT NULL,"
                  "password TEXT NOT NULL)")
-    print("User table created successfully.")
+    print("pser table created successfully.")
     conn.close()
 
 
@@ -469,7 +478,7 @@ def init_post_table():
                      "date_created TEXT NOT NULL,"
                      "id INTEGER NOT NULL,"
                      "FOREIGN KEY (id) REFERENCES users(id))")
-    print("Post table created successfully.")
+    print("post table created successfully.")
 
 
 # Create a like table
@@ -479,7 +488,7 @@ def init_like_table():
         conn.execute("CREATE TABLE IF NOT EXISTS likes(username TEXT NOT NULL, post_id TEXT NOT NULL,"
                      "FOREIGN KEY (username) REFERENCES users(username),"
                      "FOREIGN KEY (post_id) REFERENCES posts(post_id))")
-    print("Like table created successfully.")
+    print("like table created successfully.")
 
 
 # Create a comment table
@@ -492,7 +501,7 @@ def init_comment_table():
                      "post_id TEXT NOT NULL,"
                      "FOREIGN KEY (username) REFERENCES users(username),"
                      "FOREIGN KEY (id) REFERENCES posts(id))")
-    print("Comment table created successfully.")
+    print("comment table created successfully.")
     
 
 def init_reply_table():
@@ -508,17 +517,27 @@ def init_reply_table():
     print("user table created successfully.")
     conn.close()
     
-def init_share_table():
-    conn = sqlite3.connect('blog.db')
-    print("Opened database successfully.")
-    conn.execute("CREATE TABLE IF NOT EXISTS share(share_id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                 "post_id INTEGER NOT NULL,"
-                 "user_id INTEGER NOT NULL,"
-                 "share TEXT NOT NULL,"
-                 "post_id TEXT NOT NULL,"
-                 "FOREIGN KEY (username) REFERENCES users(username),"
-                 "FOREIGN KEY (id) REFERENCES posts(id))")
-    print("share table created successfully.")
+# def init_share_table():
+  #  conn = sqlite3.connect('blog.db')
+  #  print("Opened database successfully.")
+  #  conn.execute("CREATE TABLE IF NOT EXISTS share(share_id INTEGER PRIMARY KEY AUTOINCREMENT,"
+   #              "post_id INTEGER NOT NULL,"
+   #              "user_id INTEGER NOT NULL,"
+   #              "share TEXT NOT NULL,"
+   #              "FOREIGN KEY (username) REFERENCES users(username),"
+   #              "FOREIGN KEY (id) REFERENCES posts(id))")
+   # print("share table created successfully.")
+    
+# def init_follow_table():
+  #  conn = sqlite3.connect('blog.db')
+  #  print("Opened database successfully.")
+  #  conn.execute("CREATE TABLE IF NOT EXISTS follow(follow_id INTEGER PRIMARY KEY AUTOINCREMENT,"
+  #               "post_id INTEGER NOT NULL,"
+  #               "user_id INTEGER NOT NULL,"
+  #               "follow TEXT NOT NULL,"
+  #               "FOREIGN KEY (username) REFERENCES users(username),"
+  #               "FOREIGN KEY (id) REFERENCES posts(id))")
+  #  print("follow table created suuccessfully.")
     
 ####################################################  CREATING TABLES ENDS ###################################################
 
@@ -675,6 +694,9 @@ replies = fetch_replies()
 
 
 
+
+####################################################  APP START ###################################################
+
 username_table = {u.username: u for u in users}
 userid_table = {u.id: u for u in users}
 
@@ -754,7 +776,7 @@ def registration():
 
         else:
             db.registration(name, surname, email, username, password)
-            response["message"] = "New user successfully registered"
+            response["message"] = "New user registered successfully"
             response["status_code"] = 200
 
             global users
@@ -774,7 +796,7 @@ def send_email(email):
                "Kind Regards,\n SocialBook Team."
     mail.send(msg)
 
-    response["message"] = "User successfully registered"
+    response["message"] = "User successfully registered, Please check your email."
     response["status_code"] = 200
 
     return response
@@ -859,7 +881,7 @@ def delete_profile(username):
     db.delete_profile(username)
 
     response['status_code'] = 200
-    response['message'] = "Profile successfully deleted"
+    response['message'] = "Profile deleted successfully"
     return response
 
 
@@ -923,7 +945,7 @@ def delete_post(post_id):
     response = {}
     db.delete_post(post_id)
     response['status_code'] = 200
-    response['message'] = "Post successfully deleted"
+    response['message'] = "Post deleted successfully"
     return response
 
 
@@ -962,12 +984,12 @@ def view_post(post_id):
     data = db.view_post(post_id)
     response['data'] = data
     response['status_code'] = 200
-    response['description'] = "Post was successfully retrieved"
+    response['description'] = "Post retrieved successfully"
 
     return jsonify(response)
 
 
-# App route to view a specific users posts
+# App route to view a specific user's posts
 @app.route('/view-users-posts/<int:id>/', methods=["GET"])
 def view_users_products(id):
     response = {}
@@ -1037,7 +1059,7 @@ def display_comments(post_id):
 
     comments = db.display_comments(post_id)
     response['status_code'] = 200
-    response['message'] = "All comments successfully retrieved"
+    response['message'] = "All comments retrieved successfully"
     response['data'] = comments
     return response
 
@@ -1053,8 +1075,7 @@ def edit_comment(comment_id):
         comment = request.json['comment']
         db.edit_comment(comment, comment_id)
         response['status_code'] = 200
-        response['message'] = "Comment successfully edited"
-
+        response['message'] = "Comment edited successfully"
     return response
 
 
@@ -1067,7 +1088,7 @@ def delete_comment(comment_id):
 
     db.delete_comment(comment_id)
     response['status_code'] = 200
-    response['message'] = "Comment successfully deleted"
+    response['message'] = "Comment deleted successfully"
     return response
 
 
@@ -1079,11 +1100,11 @@ def add_reply():
     db = Database()
 
     if request.method == "POST":
-        comment = request.json['comment']
+        reply = request.json['reply']
         username = request.json['username']
         post_id = request.json['post_id']
 
-        db.add_reply(comment, username, post_id)
+        db.add_reply(reply, username, post_id)
         response['status_code'] = 200
         response['message'] = "Reply added successfully"
         return response
@@ -1095,10 +1116,10 @@ def display_reply(post_id):
     response = {}
     db = Database()
 
-    comments = db.display_reply(post_id)
+    replies = db.display_reply(post_id)
     response['status_code'] = 200
-    response['message'] = "All replies successfully retrieved"
-    response['data'] = comments
+    response['message'] = "All replies retrieved successfully"
+    response['data'] = replies
     return response
 
 
@@ -1113,7 +1134,7 @@ def edit_reply(reply_id):
         reply = request.json['reply']
         db.edit_reply(reply, reply_id)
         response['status_code'] = 200
-        response['message'] = "Reply successfully edited"
+        response['message'] = "Reply edited successfully"
 
     return response
 
@@ -1127,19 +1148,18 @@ def delete_reply(reply_id):
 
     db.delete_reply(reply_id)
     response['status_code'] = 200
-    response['message'] = "Reply successfully deleted"
+    response['message'] = "Reply deleted successfully"
     return response
 
 
-
 # App route for user to share a post
-# @app.route('/post/share/<username>/<int:postid>', methods=["POST"])
+# @app.route('/post/share/<username>/<int:post_id>', methods=["POST"])
 # def share(username, post_id):
   #  response = {}
-   # dtb = Database()
+   # db = Database()
    # if request.method == "POST":
-    #    dtb.share_post(username, postid)
-     #   dtb.commit()
+    #    db.share_post(username, post_id)
+     #   db.commit()
 
       #  response['message'] = "Post shared successfully"
        # response['status_code'] = 200
@@ -1148,15 +1168,31 @@ def delete_reply(reply_id):
 
 
 # App route for following a user
-# @app.route('/user/follow/username/username2/', methods=['PATCH'])
-# def follow_user(username, username2):
+# @app.route('/user/follow/<int:userid1>/<int:userid2>/', methods=['PATCH'])
+# def follow_user(userid1, userid2):
   #  response = {}
-   # dtb = Database()
-    # if request.method == 'PATCH':
-      #  dtb.follow_user(username, username2)
-       # response['message'] = 'User followed successfully'
-        # response['status_code'] = 200
-        # return response
+   # db = Database()
+
+   # if request.method == 'PATCH':
+   #     db.follow_user(userid1, userid2)
+   #     response['message'] = 'User followed successfully'
+   #     response['status_code'] = 200
+   #     return response
+
+
+# App route for unfollowing a user
+# @app.route('/user/delete-follow/<int:userid1>/<int:userid2>/')
+# def unfollow_user(userid1, userid2):
+  #  response = {}
+  #  db = Database()
+
+  #  db.unfollow_user(userid1, userid2)
+  #  response['status_code'] = 200
+  #  response['message'] = "User unfollowed successfully"
+  #  return response
+
+        
+####################################################  APP ENDS ###################################################
 
 
 if __name__ == '__main__':
