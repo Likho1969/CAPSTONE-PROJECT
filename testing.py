@@ -9,42 +9,42 @@ from app import app
 class TestApiRoutes(unittest.TestCase):
 
     # testing registration connection
-    def test_registration(self):
+    def test_registration(self):  
         test_reg = app.test_client()
         response = test_reg.get('/registration/')
         status = response.status_code
         self.assertEqual(status, 405)
 
     # testing send email connection
-    def test_send_email(self):
+    def test_send_email(self):  
         test_email = app.test_client()
         response = test_email.get('/send-email/<email>')
         status = response.status_code
         self.assertEqual(status, 404)
 
     # testing login connection
-    def test_login(self):
+    def test_login(self):  
         test_login = app.test_client()
         response = test_login.get('/login/')
         status = response.status_code
         self.assertEqual(status, 404)
 
     # testing view profile connection
-    def test_viw_profile(self):
+    def test_viw_profile(self):  
         test_view = app.test_client()
         response = test_view.get('/view-profile/<username>/')
         status = response.status_code
         self.assertEqual(status, 404)
 
     # testing edit profile connection
-    def test_edit_profile(self):
+    def test_edit_profile(self):  
         test_edit = app.test_client()
         response = test_edit.get('/edit-profile/<username>/')
         status = response.status_code
         self.assertEqual(status, 404)
 
     # testing delete profile connection
-    def test_delete_profile(self):
+    def test_delete_profile(self):  
         test_delete = app.test_client()
         response = test_delete.get('/delete-profile/<username>/')
         status = response.status_code
@@ -179,3 +179,4 @@ class TestApiRoutes(unittest.TestCase):
 
 if __name__ == '__main__':
     test = TestApiRoutes()
+    
