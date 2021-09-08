@@ -17,6 +17,7 @@ itsdangerous==2.0.1
 Jinja2==3.0.1
 MarkupSafe==2.0.1
 nexmo==2.5.2
+py3dns==3.2.1
 pycparser==2.20
 PyJWT==2.1.0
 pytz==2021.1

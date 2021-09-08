@@ -7,6 +7,7 @@ import datetime
 import cloudinary
 import cloudinary.uploader
 import validate_email
+import DNS
 from flask_mail import Mail, Message
 from flask import Flask, request, redirect, jsonify
 from flask_jwt import JWT, jwt_required
@@ -17,8 +18,11 @@ from flask_cors import CORS
 
 # Creating a user class
 class User(object):
-    def __init__(self, id, username, password):
+    def __init__(self,  id, user_image, name, surname, email, username, password):
         self.id = id
+        self.user_image = user_image
+        self.name = name
+        self.surname = surname
         self.username = username
         self.password = password
 
@@ -95,7 +99,7 @@ class Database(object):
 
     # Registration function
     def registration(self, name, surname, email, username, password):
-        self.cursor.execute("INSERT INTO users(name, surname, email, username, password) VALUES(?, ?, ?, ?, ?)",
+        self.cursor.execute("INSERT INTO users(user_image ,name, surname, email, username, password) VALUES(? ,?, ?, ?, ?, ?)",
                             (name, surname, email, username, password))
         self.conn.commit()
 
@@ -447,7 +451,7 @@ def init_user_table():
                  "user_image TEXT,"
                  "name TEXT NOT NULL,"
                  "surname TEXT NOT NULL,"
-                 "email TEXT NOT NULL UNIQUE,"
+                 "email TEXT NOT NULL,"
                  "username TEXT NOT NULL,"
                  "password TEXT NOT NULL)")
     print("pser table created successfully.")
@@ -545,7 +549,7 @@ def fetch_users():
         new_data = []
 
         for data in users:
-            new_data.append(User(data[0], data[5], data[6]))
+            new_data.append(User(data[0], data[1], data[2], data[3], data[4], data[5], data[6]))
 
     return new_data
 
@@ -602,7 +606,7 @@ def fetch_replies():
         new_data = []
 
         for data in replies:
-            new_data.append(Reply(data[0], data[1], data[2], data[3]))
+            new_data.append(Reply(data[0], data[1], data[2], data[3], data[4]))
     return new_data
 
 
@@ -728,6 +732,7 @@ def registration():
 
     if request.method == "POST":
 
+        user_image = request.form['user_image']
         name = request.form['name']
         surname = request.form['surname']
         email = request.form['email']
@@ -740,7 +745,7 @@ def registration():
             registered_username = cursor.fetchone()
 
         # Creates an error if all fields aren't filled out
-        if name == '' or surname == '' or email == '' or username == '' or password == '':
+        if user_image == '' or name == '' or surname == '' or email == '' or username == '' or password == '':
             response['status_code'] = 400
             response['message'] = "Error! Please enter all fields."
             return response
