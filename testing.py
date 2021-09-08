@@ -12,7 +12,7 @@ class AppTest(unittest.TestCase):
         test = app.test_client(self)
         response = test.get('/admin')
         status = response.status_code
-        self.assertEqual(status, 201 or 200)
+        self.assertEqual(status, 201)
 
     def test_edit_admin(self):
         test = app.test_client(self)
@@ -79,6 +79,8 @@ class AppTest(unittest.TestCase):
         response = test.get('/appointment/1')
         status = response.status_code
         self.assertEqual(status, 200)
+
+# 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
 
 
 if __name__ == '__main__':
